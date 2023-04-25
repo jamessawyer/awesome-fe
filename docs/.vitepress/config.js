@@ -17,6 +17,7 @@ const nav = [
     items: [
       { text: '深入理解Vue', link: '/vue/dive-deep/index' },
       { text: 'Vue路由', link: '/vue/router/index' },
+      { text: 'Vue3 Admin模板', link: '/vue/template/index' },
     ]
   },
   {
