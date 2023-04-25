@@ -1,0 +1,31 @@
+:root {
+  --vp-c-text-code: #28ffdc;
+  --vp-c-mute: #232932;
+
+  --vp-c-bg-overlay: rgba(30,30,32,0.75);
+}
+
+.dark {
+  --vp-c-bg-overlay: rgba(30,30,32,0.75);
+}
+
+.vp-doc strong {
+  color: #e5bd66;
+  /* color: #1565af; */
+}
+.vp-doc .custom-block a {
+  color: #7b76e9;
+  text-decoration: underline;
+}
+.vp-doc a {
+  text-decoration: underline;
+}
+
+
+.medium-zoom-overlay {
+  z-index: 20;
+}
+
+.medium-zoom-image {
+  z-index: 21;
+}
