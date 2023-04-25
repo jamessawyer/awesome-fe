@@ -1,0 +1,1 @@
+import{_ as e,c as t,o}from"./chunks/framework.e2f55fc4.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"monorepo/index.md","lastUpdated":1682410847000}'),a={name:"monorepo/index.md"};function n(r,s,c,d,p,i){return o(),t("div")}const f=e(a,[["render",n]]);export{m as __pageData,f as default};
