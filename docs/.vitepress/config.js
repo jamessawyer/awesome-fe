@@ -77,6 +77,7 @@ const sidebar_vue = {
       items: [
         { text: '源码学习', link: '/vue/dive-deep/index' },
         { text: 'Vue3.3+新特性', link: '/vue/dive-deep/vue33'},
+        { text: 'Vue3开发技巧', link: '/vue/dive-deep/tricks'},
       ]
     },
     {
