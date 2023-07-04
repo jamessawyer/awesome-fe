@@ -81,9 +81,9 @@ const sidebar_vue = {
       ]
     },
     {
-      text: 'React Hooks',
+      text: 'Renderless Components',
       items: [
-        { text: 'Hooks用法', link: '/react/dive-deep/hooks' },
+        { text: 'renderless-components-in-vuejs', link: '/vue/dive-deep/renderless/renderless-components-in-vuejs' },
       ]
     }
   ],
