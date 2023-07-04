@@ -1,0 +1,1 @@
+import{_ as e,c as t,o as a}from"./chunks/framework.e2f55fc4.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"react/dive-deep/hooks.md","lastUpdated":1688485758000}'),o={name:"react/dive-deep/hooks.md"};function r(s,c,d,n,p,i){return a(),t("div")}const f=e(o,[["render",r]]);export{m as __pageData,f as default};
