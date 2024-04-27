@@ -23,6 +23,7 @@ const nav = [
   {
     text: '🧚‍♀️常用库',
     items: [
+      { text: 'Axios常见需求', link: '/lib/axios/common-scene' },
     ]
   },
   {
@@ -97,6 +98,17 @@ const sidebar_vue = {
   ],
 }
 
+const sidebar_lib = {
+  '/lib/axios': [
+    {
+      text: 'axios技巧',
+      items: [
+        { text: '常见场景', link: '/lib/axios/common-scene' },
+      ]
+    }
+  ]
+}
+
 const sidebar_trick = {
   '/trick/vscode': [
     {
@@ -114,6 +126,7 @@ const sidebar = {
   ...sidebar_vanilla,
   ...sidebar_react,
   ...sidebar_vue,
+  ...sidebar_lib,
 }
 
 export default {
