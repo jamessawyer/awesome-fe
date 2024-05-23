@@ -209,12 +209,7 @@ import Hello from './Hello.vue'
 ```vue
 <script setup>
 import { ref } from 'vue'
-import Child from './Child.vue'
-import Child1 from './Child2.vue'
-import Child2 from './Child2.vue'
-import Child3 from './Child3.vue'
 import Child4 from './Child4.vue'
-
 
 const msg = ref('Hello World!')
 
@@ -234,9 +229,243 @@ const handleLogout = () => {
 
 虽然 `header & body & footer` 3个插槽都传了，但是因为 `Child` 中对插槽进行了过滤，只有 `body` 插槽会被透传给 `Hello.vue` 组件。
 
+当然使用之前的 `h` 函数，也是类似做法：
+
+```vue
+<script setup>
+import { h, useAttrs, useSlots } from 'vue'
+import Hello from './Hello.vue'
+
+const slots = useSlots()
+const filteredSlot = Object.entries(slots).filter(([key]) => !['header', 'footer'].includes(key))
+const bodySlot = Object.fromEntries(filteredSlot)
+
+const Comp = h(Hello, useAttrs(), {
+  header: () => h('h1', '这是Child里面通用的Header 555'),
+  footer: () => h('h1', '这是Child里面通用的Header 555'),
+  ...bodySlot
+})
+</script>
+
+<template>
+  <Comp />
+</template>
+```
+
+## 完整代码
+
+::: code-group
+
+```vue [App.vue]
+<script setup>
+import { ref } from 'vue'
+import Child from './Child.vue'
+import Child1 from './Child2.vue'
+import Child2 from './Child2.vue'
+import Child3 from './Child3.vue'
+import Child4 from './Child4.vue'
+import Child5 from './Child5.vue'
+
+
+const msg = ref('Hello World!')
+
+const handleLogout = () => {
+  console.log('logout')
+}
+</script>
+
+<template>
+  <h1>{{ msg }}</h1>
+  <Child :btn="msg" @logout="handleLogout">
+    <template #header>自定义的header</template>
+    <template v-slot:body="{ age }">自定义的body age: {{ age }}</template>
+    <template #footer>自定义的footer</template>
+  </Child>
+  <br />
+  <Child1 :btn="msg" @logout="handleLogout">
+    <template #header>自定义的header111</template>
+    <template v-slot:body="{ age }">自定义的body111 age: {{ age }}</template>
+    <template #footer>自定义的footer111</template>
+  </Child1>
+  <br />
+  <Child2 :btn="msg" @logout="handleLogout">
+    <template #header>自定义的header222</template>
+    <template v-slot:body="{age}">自定义的body222 age: {{ age }}</template>
+    <template #footer>自定义的footer222</template>
+  </Child2>
+  <br />
+
+  <Child3 :btn="msg" @logout="handleLogout">
+    <template #header>自定义的header333</template>
+    <template v-slot:body="{age}">自定义的body333 age: {{ age }}</template>
+    <template #footer>自定义的footer333</template>
+  </Child3>
+  <br />
+
+  <Child4 :btn="msg" @logout="handleLogout">
+    <template #header>自定义的header444</template>
+    <template v-slot:body="{age}">自定义的body444 age: {{ age }}</template>
+    <template #footer>自定义的footer444</template>
+  </Child4>
+
+  <br />
+  <Child5 :btn="msg" @logout="handleLogout">
+    <template #header>自定义的header555</template>
+    <template v-slot:body="{age}">自定义的body555 age: {{ age }}</template>
+    <template #footer>自定义的footer555</template>
+  </Child5>
+
+</template>
+```
+
+``` vue [Hello.vue]
+<script setup>
+import { ref } from 'vue'
+
+const msg = ref('msg from Hello')
+const age = ref(18)
+defineProps({
+  btn: String
+})
+
+const emits = defineEmits(['logout'])
+
+const handleClick = () => {
+  emits('logout')
+}
+</script>
+
+<template>
+  <div>
+    <header>
+      <slot name="header">
+        这是header
+      </slot>
+    </header>
+
+    <main>
+      <slot name="body" :age="age">
+        这是body
+      </slot>
+    </main>
+
+    <footer>
+      <slot name="footer">
+        这是footer
+      </slot>
+    </footer>
+    <button @click="handleClick">{{ btn }}</button>
+  </div>
+</template>
+
+```
+
+``` vue [Child.vue]
+<script setup>
+import Hello from './Hello.vue'
+</script>
+
+<template>
+  <Hello v-bind="$attrs">
+    <template v-for="(_, slot) in $slots" v-slot:[slot]="slotProps" :key="slot">
+      <slot :name="slot" v-bind="slotProps || {}"></slot>
+    </template>
+  </Hello>
+</template>
+```
+
+``` vue [Child1.vue]
+<script setup>
+import Hello from './Hello.vue'
+</script>
+
+<template>
+  <Hello v-bind="$attrs">
+    <template v-for="(_value, name) in $slots" #[name]="slotProps" :key="name">
+      <slot :name="name" v-bind="slotProps || {}"></slot>
+    </template>
+  </Hello>
+</template>
+```
+
+``` vue [Child2.vue]
+<script setup>
+import { h, useAttrs, useSlots } from 'vue'
+import Hello from './Hello.vue'
+
+const Comp = h(Hello, useAttrs(), useSlots())
+</script>
+
+<template>
+  <Comp />
+</template>
+```
+
+``` vue [Child3.vue]
+<script setup>
+import { h } from 'vue'
+import Hello from './Hello.vue'
+
+</script>
+
+<template>
+  <component :is="h(Hello, $attrs, $slots)" />
+</template>
+```
+
+
+
+``` vue [Child4.vue]
+<script setup>
+import Hello from './Hello.vue'
+// 只对body插槽进行透传 header & footer插槽已经预定义好了
+</script>
+
+<template>
+  <Hello v-bind="$attrs">
+    <template #header>
+      <h1>这是Child里面通用的Header 444</h1>
+    </template>
+    <template v-for="(_value, name) in Object.fromEntries(Object.entries($slots).filter(([key]) => !['header', 'footer'].includes(key)))" #[name]="slotProps" :key="name">
+      <slot :name="name" v-bind="slotProps || {}"></slot>
+    </template>
+    <template #footer>
+      <h1>这是Child里面通用Footer 444</h1>
+    </template>
+  </Hello>
+</template>
+```
+
+
+
+``` vue [Child5.vue]
+<script setup>
+import { h, useAttrs, useSlots } from 'vue'
+import Hello from './Hello.vue'
+
+const slots = useSlots()
+const filteredSlot = Object.entries(slots).filter(([key]) => !['header', 'footer'].includes(key))
+const bodySlot = Object.fromEntries(filteredSlot)
+
+const Comp = h(Hello, useAttrs(), {
+  header: () => h('h1', '这是Child里面通用的Header 555'),
+  footer: () => h('h1', '这是Child里面通用的Header 555'),
+  ...bodySlot
+})
+</script>
+
+<template>
+  <Comp />
+</template>
+```
+
+:::
+
+
+
 上面示例可以查看：
 
-- [动态slots的用法](https://play.vuejs.org/#eNrNV19rG0cQ/yqbc6hOoEjoz0MRsklqXNJSmlAX+qAz5aRbSWefdsXdnuqiCPIQGgoBQ+lD61JoA6UlDw30paRtyJexbOtbdGZ376ST7lS7OUgwyLczv52b/c3szNzEuDMalcchNZpGK+j67kiQgIpwtGMxdzjiviAT4tMemZKez4ekANBCrNoduJ6jFeWKXKGtFUA1iailQGr/DaknIfUUSCMJaWgI/nU5CwQZBn2yjccxC3ep53HyGfc950ahuIAMbOZ49CPe56EArFkk2ztkYjFCUM89WvZ43yzADwBw49RirYpiDjiDhaDDkWcLCitCWoPqzmQiXzydtiqwklJFXLMj2LZlgNIyyG1lEtbLLliG3ABbIrNka0Bth/o7l4+fzX4/PXvx9cXpIyVqVRLvXt40vhV4XDQ73PkS3jAhdp+SKRhfNoJKVDQJeCwB4HGmxa0e52LFDSVa2dRS0VDPHZ9Uliio5s5BtVrNgQawkgcT685oMnQarLBRy52NWq12dTbgoGlcgI08uFh3RXNRS3CxYKOeOxv1ev212QAbebCx7opmo57BRiN3NhqNxmuzATbyYGPdFc1GQ5XUZZ1RMkQAtbjn9suHAWfQuGR5towuH45cj/r3RsKFWm0Z4JbywTJsqPZffChlwg9pKZJ3B7R7lCI/DI5RZhn3fRpQf0wtI9YJ2+9T4BrVe/sf02N4jpVD7oQeoDcoP6HQR0L0UcHeCzGC/hJOevuB7Gwu638a7B0LyoLoUOgoIqcSbxnQ5XY3HH3hbr3ckPugaQGLcbvObv2qSUZNVa50T93U8tSu8a2OyxzInZu2ED64lJJiPe4DwPy8RDDZisRl5CY+ATpKwDb+HgAK/9/3+Qh1zSOKWYmi2C5YxjVpMntIY+XCjXg/efCATDCZ4Qwgi9xazT95CnheTb6YhetNTCkjCD5KiDSJs4SC4EVSkOq7IHRoz2VUum7KoEIdaJJ94UNqQCSXZhc6dEUAW9WOPVyZ7WhUOVgbcnY9t3uUnHGkhWtMN447jvjTdSYZDB0LpVsKFSGXr74//+65VkR7kgGJLWrB0HZZun0sRZgWwBys4DflVRKT/iJtWC91lUp9kdKlWNeKdPsJi61OKARn5HYX6Y8LuAwGGIZCCvGVhVQBdToqpleTcTEtb8rGQYmEAb2D11A+7eMVS5/os298lDtYaiBpBqZULiybxYVtswipsylvpBFscKkHkrP9xgNd3/lN3mDj4IwyKB5ugBGJzqZKF/yXRakIKZbpc/XtqKRj24MuJtM1WU632ijLKKSoyiykSpl/IV18o/0f2ioVMjt5Nnv+Au/1+ck357++vHz1w+XPT+YPT87++Ymo4kHeIeryKcTszz8u/j6ZP32k5o/ZLy/P/voqnxBEc1bMIXzqqdIgzzl//GT+49P5w9OLb3+Dseeu/l7T34NrrF0tuPc6h7QrykjPHoN+QANTiyCX5VInbrnnekCCabYh3gey3N9oF5THhRIpKI4KB2WXdb3QgY2AK8IlfnN5kzY4XoHb9/UXaBaxWek4/RdlTxnZ)
+- [动态slots的用法](https://play.vuejs.org/#eNrNWP9r20YU/1euSplkSGX8DYZxQruQ0Y2xlmWwH6wwZOtsK5ElI528DNfQH8rKoBAY+2HLGGyFsdEfVtgvo9tK/5k4if+LvXd3kiVbdpJatCUg6+597t27z3v33lNGyp3BQB+GVKkrjaDt2wNGAsrCwbbh2v2B5zMyIj7tkDHp+F6fqABVY9FOz3YsKdCLfIS65gClNKKcASlfDqmkIZUMSDUNqWZAamlITULwr+25ASP9oEu28MSaepc6jke+8HzHuqEWZpCe6VoO/cTreiEDrFYgW9tkZLiEoNxzqO54XU2FBwBw4dhwG0VBLtAKA0b7A8dkFEaENHql7dGIbzweN4ow4rOC23qLuVuGAkJDIbeFShgnTTAUvgCWRGrJRo+aFvW3Lx4/m/x5cvri2/OTR2KqUUztnVw0vBU4Hqu3POtr2GFEzC4lY1CeVIJCFNQJWMwBYPFSjRsdz2NzZoipuUUN4Q3x3vJJMUFBKXcOSqVSDjSAljyYWDRGkiHDYI6Ncu5slMvlq7MBB83iAnTkwcWiKZKLcoqLGRuV3NmoVCprswE68mBj0RTJRmUJG9Xc2ahWq2uzATryYGPRFMlGNeJg7qbUcmejVqutzQboyIONRVMkGzVRYJIyZVNhAVSmjt3VDwLPhUrPi5WhtL3+wHaof2/AbKhchgJmCRsMxYTa99XHfI75Id2M5ts92j7MmD8IjnDOUO77NKD+kBpKLGOm36XANYp39z6lR/AeC/ueFTqAXiH8jEJVDdFGAfsgRA/6CRy39iNe5223+3mwe8SoG0SHQkMROeZ4Q4Gav7Pi6DNzK3qVr4MSDizG/c3yXkm0DFGLwUeyw1jVAIhVw1st27Ugdm6ajPlgUkaIdTwfANqXmwSDrUBsl9zEN0BHAdjE5z6g8Pe+7w1QVj+kGJU4FesFzTgmddfs01g4MyNeTx48ICMMZjgDzEVmzccfPwW8zwdfzML1WsyMhgxfOYSrxM5KQPAiCUjpfZi0aMd2KTdd406FPFAne8yH0ABPJjo52rdZAEvFil0cac2ocdtfaPl2HLt9mO74uIZr9HqWPYz4k3km7QzpCyFLuIqQi1c/nv3wXAqiNWmHxBrlRN+03Wz9mIowLIA5GMEzYyuOyd5IKpZDmaUyNxKyDO1SkK0/pbHRChnzXHK7jfTHCZw7AxRDIgX/8kQqgDIcBdPzwTj7vFgVjb1NEgb0Dl5D/raHVyz7E2j5jY9iB1MNBE1P48KZZq0w060VIHRWxQ1XguUt80D8Y2jlga5v/CprsHB4LnUhedgBeiQ6m0hd8MuTUgFCbKnNpXcjkw5NB6oYD9d0Ot1o4tySRIqipYlUCPNPpLOP2tehrVgkk+Nnk+cv8F6fHX939vvLi1c/Xfz6ZPrw+PS/X4hIHuQ9Ii6fQEz+/uv83+Pp00ei/5j89vL0n2/ycUHUZ8UcwoevSA38nNPHT6Y/P50+PDn//g9oe+4K63gXKL+QF5i7moPvtQ5om+lI0a4LNYEGmpyCeOZDGbx6x3aACE1rgs/3ecq/0VSF1eomUQVP6r5uu20ntGAh4Apwkd9e7GQ1j1fg90OOXE3uJWHJ/5HyxlIqdxDk1Fn6jCTCZ9TCaQDMeXYtx0Zb4P1Jq0/GUtKARAOxqgjwRkJsX5e9RU9TeyW05dIbAV8CaoH3tcLsdTTouh4dTvRJr1GRxv8DtVlQEg==)
 
 此技巧来自：
 
@@ -245,6 +474,7 @@ const handleLogout = () => {
 另外可以参考：
 
 - [vue tricks](./tricks)
+- [vue doc - slots](https://cn.vuejs.org/guide/components/slots.html#slots)
 
 createdAt: 2024年05月23日23:18:57
 
