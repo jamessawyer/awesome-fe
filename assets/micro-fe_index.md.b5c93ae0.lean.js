@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as a}from"./chunks/framework.e2f55fc4.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"micro-fe/index.md","lastUpdated":1714209226000}'),r={name:"micro-fe/index.md"};function o(n,c,s,d,i,p){return a(),t("div")}const f=e(r,[["render",o]]);export{m as __pageData,f as default};
