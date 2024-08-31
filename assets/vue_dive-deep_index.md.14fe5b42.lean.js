@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as a}from"./chunks/framework.e2f55fc4.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"vue/dive-deep/index.md","lastUpdated":1716478462000}'),d={name:"vue/dive-deep/index.md"};function n(r,o,s,c,i,p){return a(),t("div")}const f=e(d,[["render",n]]);export{m as __pageData,f as default};
