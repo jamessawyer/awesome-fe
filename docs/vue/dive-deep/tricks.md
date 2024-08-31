@@ -197,6 +197,75 @@ const showModal = () => {
 
 
 
+## 二次封装使用代理暴露方法
+
+比如对 `ElementPlus` 的 `ElInput` 组件进行二次封装，外部想要拿到 `ElInput` 的方法
+
+::: code-group
+
+```vue [MyInput.vue]
+<template>
+	<div>
+    二次封装的el-input
+  </div>
+	<el-input ref="inputRef" v-bind="$attrs">
+  	<template v-for="(_, slot) in $slots" :key="slit" #[slot]="slotProps">
+			<slot :name="slot" v-bind="slotProps || {}"></slot>
+		</template>
+  </el-input>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+  
+const inputRef = ref()
+
+// 通过代理的形式，一次性将el-input上所有的方法进行暴露
+defineExpose(
+	new Proxy({}, {
+    get(target, key) {
+      return inputRef.value?.[key]
+    },
+    has(target, key) {
+      return key in inputRef.value
+    }
+  })
+)
+</script>
+```
+
+```vue [App.vue]
+<template>
+<el-button type="primary" @click="onFocus">聚焦</el-button>
+<MyInput v-model="msg" ref="myInputRef">
+  <template #prepend>
+    <el-button>前置</el-button>
+	</template>
+</MyInput>
+</template>
+
+<script setup lang="ts">
+import MyInput from './MyInput.vue'
+import { ref } from 'vue'
+  
+const myInputRef = ref()
+const msg = ref('111')
+
+
+const onFocus = () => {
+  // 调用
+  myInputRef.value.focus()
+}
+</script>
+```
+
+:::
+
+- [tricks来源 - 远方os @bilibili](https://www.bilibili.com/video/BV1EJstecEbA/)
+- [在线示例 - stackblitz](https://stackblitz.com/edit/vitejs-vite-3t2j4m?file=src%2FMyInput.vue)
+
 createdAt: 2023-06-26 12:35
 
 updatedAt: 2024-04-27 17:05:31
+
+updatedAt: 2024-08-31-15:29:16
